@@ -1,13 +1,15 @@
 package dev.jaffer.productService.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-public class ProductDto {
+@AllArgsConstructor
+@NoArgsConstructor
+public class FakeStoreProductDto {
 
     private long id;
     private String title;
@@ -15,5 +17,4 @@ public class ProductDto {
     private double price;
     private String image;
     private String category;
-
 }
