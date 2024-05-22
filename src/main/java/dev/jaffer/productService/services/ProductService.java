@@ -1,21 +1,17 @@
 package dev.jaffer.productService.services;
 
-import dev.jaffer.productService.dtos.FakeStoreProductDto;
-import dev.jaffer.productService.dtos.ProductDto;
+import dev.jaffer.productService.clients.fakeStoreApi.FakeStoreProductDto;
 import dev.jaffer.productService.models.Product;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
 
     List<Product> getAllProducts();
 
 
-    Product getProductById(Long productId);
+    Optional<Product> getProductById(Long productId);
 
 
     Product addProduct(FakeStoreProductDto productDto );

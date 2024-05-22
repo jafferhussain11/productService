@@ -1,4 +1,4 @@
-package dev.jaffer.productService.dtos;
+package dev.jaffer.productService.clients.fakeStoreApi;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

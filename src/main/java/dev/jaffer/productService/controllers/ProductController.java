@@ -1,9 +1,8 @@
 package dev.jaffer.productService.controllers;
 
-import dev.jaffer.productService.dtos.AddNewProductDto;
-import dev.jaffer.productService.dtos.FakeStoreProductDto;
-import dev.jaffer.productService.dtos.GetSingleProductResponseDto;
-import dev.jaffer.productService.dtos.ProductDto;
+import dev.jaffer.productService.clients.fakeStoreApi.FakeStoreProductDto;
+import dev.jaffer.productService.dtos.*;
+import dev.jaffer.productService.exceptions.NotFoundExceptions;
 import dev.jaffer.productService.models.Category;
 import dev.jaffer.productService.models.Product;
 import dev.jaffer.productService.services.ProductService;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class ProductController {
@@ -26,11 +26,16 @@ public class ProductController {
     }
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable ("productId") Long productId) {
-        Product product = productService.getProductById(productId);
+    public ResponseEntity<Product> getProductById(@PathVariable ("productId") Long productId) throws NotFoundExceptions {
+
+        Optional<Product> productOptional = productService.getProductById(productId);
+        if(productOptional.isEmpty()) {
+            throw new NotFoundExceptions("Product not found");
+        }
+//        Product product = productService.getProductById(productId);
         GetSingleProductResponseDto responseDto = new GetSingleProductResponseDto();
-        responseDto.setProduct(product);
-        return ResponseEntity.ok(product);
+        responseDto.setProduct(productOptional.get());
+        return ResponseEntity.ok(productOptional.get());
     }
 
     @PostMapping("/products")
@@ -64,4 +69,8 @@ public class ProductController {
     public String deleteProduct(long id) {
         return "Product with id: " + id + " deleted";
     }
+
+
+
+
 }
