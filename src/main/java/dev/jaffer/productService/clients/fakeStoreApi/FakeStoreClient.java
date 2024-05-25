@@ -32,11 +32,17 @@ public class FakeStoreClient {
     }
 
 
-    Product addProduct(FakeStoreProductDto productDto );
+    Product addProduct(FakeStoreProductDto productDto ){
+        return null;
+    }
 
-    Product updateProduct(long id,Product product);
+    Product updateProduct(long id,Product product){
+        return null;
+    }
 
-    boolean deleteProduct(long id);
+    boolean deleteProduct(long id){
+        return false;
+    }
 
 
 }
