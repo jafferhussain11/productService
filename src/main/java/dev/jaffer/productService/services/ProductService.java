@@ -14,7 +14,7 @@ public interface ProductService {
     Optional<Product> getProductById(Long productId);
 
 
-    Product addProduct(FakeStoreProductDto productDto );
+    Product addProduct(Product product );
 
     Product updateProduct(long id,Product product);
 

@@ -7,13 +7,8 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDto {
+public class CategoryDto {
 
-
-    private String title;
+    private String name;
     private String description;
-    private double price;
-    private String image;
-    private String category;
-
 }

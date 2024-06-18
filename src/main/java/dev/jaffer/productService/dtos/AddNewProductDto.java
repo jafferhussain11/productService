@@ -8,5 +8,6 @@ import lombok.Setter;
 @Setter
 public class AddNewProductDto {
 
-    private Product product;
+    private Product product; //
+
 }

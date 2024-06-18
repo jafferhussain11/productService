@@ -1,12 +1,18 @@
 package dev.jaffer.productService.services;
 
+import dev.jaffer.productService.models.Category;
+import dev.jaffer.productService.models.Product;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface CategoryService {
+
     @GetMapping("/categories")
-    String getAllCategories();
+    List<Category> getAllCategories();
 
-    String getProductsByCategory(long id);
+    List<Product> getProductsByCategory(List<String> categories);
 
-    String addCategory();
+    Category addCategory(Category category);
 }

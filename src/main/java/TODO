@@ -1,0 +1,10 @@
+1.finish apis
+2.finish test cases
+3.then go to user service
+4.how does exception thrown in service layer be handled in controller layer----- exceptions to be thrown in controller layer
+
+
+
+fix
+new category should not be created each time when a new product is created
+test get all products by category

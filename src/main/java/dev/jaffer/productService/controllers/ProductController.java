@@ -1,14 +1,15 @@
 package dev.jaffer.productService.controllers;
 
-import dev.jaffer.productService.clients.fakeStoreApi.FakeStoreProductDto;
 import dev.jaffer.productService.dtos.*;
 import dev.jaffer.productService.exceptions.NotFoundExceptions;
 import dev.jaffer.productService.models.Category;
 import dev.jaffer.productService.models.Product;
 import dev.jaffer.productService.services.ProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,31 +18,47 @@ public class ProductController {
 
     private ProductService productService;
 
+
     public ProductController(ProductService productService) {
         this.productService = productService;
     }
+
+
     @GetMapping("/products")
-    public List <Product> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<List <ProductDto>> getAllProducts() throws NotFoundExceptions{
+
+        List<Product> listOfProducts = productService.getAllProducts();
+        List<ProductDto> listOfProductDto = new ArrayList<>();
+
+        if (listOfProducts.isEmpty()) {
+            throw new NotFoundExceptions("No products found");
+        }
+
+        for(Product product : listOfProducts) {
+            ProductDto productDto = convertProductToProductDto(product);
+            listOfProductDto.add(productDto);
+        }
+
+        return ResponseEntity.ok(listOfProductDto);
     }
 
     @GetMapping("/products/{productId}")
-    public ResponseEntity<Product> getProductById(@PathVariable ("productId") Long productId) throws NotFoundExceptions {
+    public ResponseEntity<ProductDto> getProductById(@PathVariable ("productId") Long productId) throws NotFoundExceptions {
 
         Optional<Product> productOptional = productService.getProductById(productId);
         if(productOptional.isEmpty()) {
             throw new NotFoundExceptions("Product not found");
         }
-//        Product product = productService.getProductById(productId);
-        GetSingleProductResponseDto responseDto = new GetSingleProductResponseDto();
-        responseDto.setProduct(productOptional.get());
-        return ResponseEntity.ok(productOptional.get());
+
+        ProductDto productDto = convertProductToProductDto(productOptional.get());
+        return ResponseEntity.ok(productDto);
+
     }
 
     @PostMapping("/products")
-    public ResponseEntity<Product> addProduct(@RequestBody FakeStoreProductDto productDto) { //whatever is sent in the body of the request will be mapped to the productDto object
+    public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) { //whatever is sent in the body of the request will be mapped to the productDto object
 
-        Product product = productService.addProduct(productDto);
+        Product product = productService.addProduct(convertProductDtoToProduct(productDto));
         AddNewProductDto responseDto = new AddNewProductDto();
         responseDto.setProduct(product);
         return ResponseEntity.ok(product);
@@ -49,21 +66,35 @@ public class ProductController {
     }
 
     @PatchMapping("/products/{productId}")
-    public Product updateProduct(@PathVariable("productId") long id, @RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable("productId") long id, @RequestBody ProductDto productDto) throws NotFoundExceptions {
 
+        Product product = convertProductDtoToProduct(productDto);
+        Product updatedProduct = productService.updateProduct(id, product);
+        if(updatedProduct == null) {
+            throw new NotFoundExceptions("Product not found");
+        }
+        return ResponseEntity.ok(convertProductToProductDto(updatedProduct));
+    }
+    private static Product convertProductDtoToProduct(ProductDto productDto) {
         Product product = new Product();
-        product.setId(id);
         product.setTitle(productDto.getTitle());
         product.setPrice(productDto.getPrice());
         product.setDescription(productDto.getDescription());
-        product.setCategory(new Category());
+        product.setCategory(new Category()); //
         product.getCategory().setName(productDto.getCategory());
         product.setImageUrl(productDto.getImage());
-
-        return  productService.updateProduct(id, product);
+        return product;
     }
 
-
+    private static ProductDto convertProductToProductDto(Product product) {
+        ProductDto productDto = new ProductDto();
+        productDto.setTitle(product.getTitle());
+        productDto.setPrice(product.getPrice());
+        productDto.setDescription(product.getDescription());
+        productDto.setCategory(product.getCategory().getName());
+        productDto.setImage(product.getImageUrl());
+        return productDto;
+    }
 
 
     public String deleteProduct(long id) {
