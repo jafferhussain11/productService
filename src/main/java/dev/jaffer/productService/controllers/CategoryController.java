@@ -36,7 +36,7 @@ public class CategoryController {
 
     @GetMapping("/categories/productsByCategory")
     public ResponseEntity<List<Product>> getProductsByCategory(@RequestBody GetProductsByCategoriesRequestDto requestDto) {
-
+////////change to product dto resp entity
         List<Product> products = categoryService.getProductsByCategory(requestDto.getCategoryNames());
         return ResponseEntity.ok(products);
     }

@@ -15,7 +15,6 @@ import java.util.Optional;
 @Primary
 public class SelfProductService implements ProductService{
 
-
     ProductRepository productRepository;
 
     public SelfProductService(ProductRepository productRepository) {
@@ -25,7 +24,6 @@ public class SelfProductService implements ProductService{
 
     @Override
     public List<Product> getAllProducts() {
-
        return productRepository.findAll();
         //return new ArrayList<>();
     }
@@ -49,11 +47,10 @@ public class SelfProductService implements ProductService{
     public Product updateProduct(long id, Product product) {
 
         Product productToUpdate = productRepository.findByIdIs(id);
-
         if (productToUpdate == null) {
+            /////////////////chk thiss
             return null;
         }
-
 
         productToUpdate.setTitle(product.getTitle());
         productToUpdate.setPrice(product.getPrice());
@@ -66,6 +63,8 @@ public class SelfProductService implements ProductService{
 
     @Override
     public boolean deleteProduct(long id) {
+
+        ////gotta do this
         return false;
     }
 

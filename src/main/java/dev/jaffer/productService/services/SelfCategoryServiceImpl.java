@@ -27,15 +27,10 @@ public class SelfCategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Product> getProductsByCategory(List<String> categories) {
-
-
         List<Category> categoryList = categoryRepository.findByNameIn(categories);
-
         List<Product> productList = productRepository.findAllByCategoryIn(categoryList);
 
         return productList;
-
-
     }
 
     @Override

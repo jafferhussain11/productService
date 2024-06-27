@@ -23,9 +23,9 @@ public class ProductController {
         this.productService = productService;
     }
 
-
+    // Make only admins able to fetch all products
     @GetMapping("/products")
-    public ResponseEntity<List <ProductDto>> getAllProducts() throws NotFoundExceptions{
+    public ResponseEntity<List<ProductDto>> getAllProducts(@RequestHeader("AUTH_TOKEN")) throws NotFoundExceptions{
 
         List<Product> listOfProducts = productService.getAllProducts();
         List<ProductDto> listOfProductDto = new ArrayList<>();
@@ -59,6 +59,7 @@ public class ProductController {
     public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) { //whatever is sent in the body of the request will be mapped to the productDto object
 
         Product product = productService.addProduct(convertProductDtoToProduct(productDto));
+        ////////////checkk
         AddNewProductDto responseDto = new AddNewProductDto();
         responseDto.setProduct(product);
         return ResponseEntity.ok(product);
@@ -75,6 +76,13 @@ public class ProductController {
         }
         return ResponseEntity.ok(convertProductToProductDto(updatedProduct));
     }
+
+//////complete this
+    public String deleteProduct(long id) {
+        return "Product with id: " + id + " deleted";
+    }
+
+
     private static Product convertProductDtoToProduct(ProductDto productDto) {
         Product product = new Product();
         product.setTitle(productDto.getTitle());
@@ -94,11 +102,6 @@ public class ProductController {
         productDto.setCategory(product.getCategory().getName());
         productDto.setImage(product.getImageUrl());
         return productDto;
-    }
-
-
-    public String deleteProduct(long id) {
-        return "Product with id: " + id + " deleted";
     }
 
 
