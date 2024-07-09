@@ -5,6 +5,8 @@ import dev.jaffer.productService.clients.fakeStoreApi.FakeStoreProductDto;
 import dev.jaffer.productService.models.Category;
 import dev.jaffer.productService.models.Product;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Primary
 public class FakeStoreProductsImpl implements ProductService {
 
 
@@ -26,33 +29,16 @@ public class FakeStoreProductsImpl implements ProductService {
 
     private FakeStoreClient fakeStoreClient;
 
-    private <T> ResponseEntity<T> requestForEntity(String url,HttpMethod httpMethod, @Nullable Object request,
-                                               Class<T> responseType, Object... uriVariables) throws RestClientException {
-
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
-        ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
-        return restTemplate.execute(url, httpMethod, requestCallback, responseExtractor, uriVariables);
-    }
-
-    private Product convertFakeStoreProductDtoToProduct(FakeStoreProductDto productDto) {
-        Product product = new Product();
-        product.setId(productDto.getId());
-        product.setTitle(productDto.getTitle());
-        product.setPrice(productDto.getPrice());
-        product.setDescription(productDto.getDescription());
-        product.setImageUrl(productDto.getImage());
-        Category category = new Category();
-        category.setName(productDto.getCategory());
-        product.setCategory(category);
-        return product;
-    }
+    private RedisTemplate<Long, Product> redisTemplate;
 
 
 
-    public FakeStoreProductsImpl(RestTemplateBuilder restTemplateBuilder, FakeStoreClient fakeStoreClient) {
+
+
+    public FakeStoreProductsImpl(RestTemplateBuilder restTemplateBuilder, FakeStoreClient fakeStoreClient, RedisTemplate<Long, Product> redisTemplate) {
         this.restTemplateBuilder = restTemplateBuilder;
         this.fakeStoreClient = fakeStoreClient;
+        this.redisTemplate = redisTemplate;
     }
 
 
@@ -79,16 +65,27 @@ public class FakeStoreProductsImpl implements ProductService {
     public Optional<Product> getProductById(Long productId) {
 
         RestTemplate restTemplate = restTemplateBuilder.build();
+        //check redis
+
+        FakeStoreProductDto redisProduct = (FakeStoreProductDto) redisTemplate.opsForHash().get(productId, "products");
+
+        if (redisProduct != null) {
+            return Optional.of(convertFakeStoreProductDtoToProduct(redisProduct));
+        }
+
         ResponseEntity<FakeStoreProductDto> response = restTemplate.getForEntity("https://fakestoreapi.com/products/{productId}",
                 FakeStoreProductDto.class,
                 productId);
 
 
-        FakeStoreProductDto productDto = response.getBody();
-        if (productDto == null) {
+        FakeStoreProductDto fakeStoreProductDto = response.getBody();
+        if (fakeStoreProductDto == null) {
             return Optional.empty();
         }
-        Product product = convertFakeStoreProductDtoToProduct(productDto);
+        //save to redis
+        redisTemplate.opsForHash().put(productId, "products", fakeStoreProductDto);
+
+        Product product = convertFakeStoreProductDtoToProduct(fakeStoreProductDto);
 
         return Optional.of(product);
 
@@ -133,5 +130,27 @@ public class FakeStoreProductsImpl implements ProductService {
     @Override
     public boolean deleteProduct(long id) {
         return false;
+    }
+
+    private <T> ResponseEntity<T> requestForEntity(String url,HttpMethod httpMethod, @Nullable Object request,
+                                                   Class<T> responseType, Object... uriVariables) throws RestClientException {
+
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        RequestCallback requestCallback = restTemplate.httpEntityCallback(request, responseType);
+        ResponseExtractor<ResponseEntity<T>> responseExtractor = restTemplate.responseEntityExtractor(responseType);
+        return restTemplate.execute(url, httpMethod, requestCallback, responseExtractor, uriVariables);
+    }
+
+    private Product convertFakeStoreProductDtoToProduct(FakeStoreProductDto productDto) {
+        Product product = new Product();
+        product.setId(productDto.getId());
+        product.setTitle(productDto.getTitle());
+        product.setPrice(productDto.getPrice());
+        product.setDescription(productDto.getDescription());
+        product.setImageUrl(productDto.getImage());
+        Category category = new Category();
+        category.setName(productDto.getCategory());
+        product.setCategory(category);
+        return product;
     }
 }

@@ -1,6 +1,5 @@
 package dev.jaffer.productService.clients.authenticationclient.dtos;
 
-import dev.jaffer.userservice.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

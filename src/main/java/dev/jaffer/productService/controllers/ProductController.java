@@ -25,7 +25,8 @@ public class ProductController {
 
     // Make only admins able to fetch all products
     @GetMapping("/products")
-    public ResponseEntity<List<ProductDto>> getAllProducts(@RequestHeader("AUTH_TOKEN")) throws NotFoundExceptions{
+    public ResponseEntity<List<ProductDto>> getAllProducts(@RequestHeader("AUTH_TOKEN") String token,
+                                                           @RequestHeader("USER_ID") Long userId) throws NotFoundExceptions{
 
         List<Product> listOfProducts = productService.getAllProducts();
         List<ProductDto> listOfProductDto = new ArrayList<>();
@@ -55,7 +56,7 @@ public class ProductController {
 
     }
 
-    @PostMapping("/products")
+    @PostMapping("/addProduct")
     public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) { //whatever is sent in the body of the request will be mapped to the productDto object
 
         Product product = productService.addProduct(convertProductDtoToProduct(productDto));
