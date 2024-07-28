@@ -2,6 +2,7 @@ package dev.jaffer.productService.controllers;
 
 import dev.jaffer.productService.dtos.CategoryDto;
 import dev.jaffer.productService.dtos.GetProductsByCategoriesRequestDto;
+import dev.jaffer.productService.dtos.ProductDto;
 import dev.jaffer.productService.models.Category;
 import dev.jaffer.productService.models.Product;
 import dev.jaffer.productService.services.CategoryService;
@@ -35,10 +36,15 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/productsByCategory")
-    public ResponseEntity<List<Product>> getProductsByCategory(@RequestBody GetProductsByCategoriesRequestDto requestDto) {
-////////change to product dto resp entity
+    public ResponseEntity<List<ProductDto>> getProductsByCategory(@RequestBody GetProductsByCategoriesRequestDto requestDto) {
+
         List<Product> products = categoryService.getProductsByCategory(requestDto.getCategoryNames());
-        return ResponseEntity.ok(products);
+        List<ProductDto> productDtos = new ArrayList<>();
+        for(Product product : products) {
+            ProductDto productDto = convertProductToProductDto(product);
+            productDtos.add(productDto);
+        }
+        return ResponseEntity.ok(productDtos);
     }
 
     @PostMapping("/categories")
@@ -55,11 +61,20 @@ public class CategoryController {
     }
 
     private static Category convertCategoryDtoToCategory(CategoryDto categoryDto) {
-
         Category category = new Category();
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
         return category;
+    }
+
+    private static ProductDto convertProductToProductDto(Product product) {
+        ProductDto productDto = new ProductDto();
+        productDto.setTitle(product.getTitle());
+        productDto.setPrice(product.getPrice());
+        productDto.setDescription(product.getDescription());
+        productDto.setCategory(product.getCategory().getName());
+        productDto.setImage(product.getImageUrl());
+        return productDto;
     }
 
 }

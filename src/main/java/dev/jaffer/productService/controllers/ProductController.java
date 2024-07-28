@@ -5,6 +5,8 @@ import dev.jaffer.productService.exceptions.NotFoundExceptions;
 import dev.jaffer.productService.models.Category;
 import dev.jaffer.productService.models.Product;
 import dev.jaffer.productService.services.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,22 +27,37 @@ public class ProductController {
 
     // Make only admins able to fetch all products
     @GetMapping("/products")
-    public ResponseEntity<List<ProductDto>> getAllProducts(@RequestHeader("AUTH_TOKEN") String token,
-                                                           @RequestHeader("USER_ID") Long userId) throws NotFoundExceptions{
+    public ResponseEntity<Page<ProductDto>> getAllProducts(@RequestParam("pageNumber") int pageNumber,
+                                                           @RequestParam("pageSize") int pageSize) throws NotFoundExceptions{
 
-        List<Product> listOfProducts = productService.getAllProducts();
-        List<ProductDto> listOfProductDto = new ArrayList<>();
 
-        if (listOfProducts.isEmpty()) {
-            throw new NotFoundExceptions("No products found");
-        }
+//        List<Product> listOfProducts = productService.getAllProducts();
 
-        for(Product product : listOfProducts) {
-            ProductDto productDto = convertProductToProductDto(product);
-            listOfProductDto.add(productDto);
-        }
+//        List<ProductDto> listOfProductDto = new ArrayList<>();
+//
+//        if (listOfProducts.isEmpty()) {
+//            throw new NotFoundExceptions("No products found");
+//        }
+//
+//        for(Product product : listOfProducts) {
+//            ProductDto productDto = convertProductToProductDto(product);
+//            listOfProductDto.add(productDto);
+//        }
 
-        return ResponseEntity.ok(listOfProductDto);
+        Page<Product> pageOfProducts = productService.getAllProducts(pageNumber, pageSize);
+//        List<Product> listOfProducts = pageOfProducts.getContent();
+//        List<ProductDto> productDtoList = new ArrayList<>();
+
+        //thisfuction is used to convert a page of products to a page of productDto
+        Page<ProductDto> pageOfProductDto = pageOfProducts.map(product -> convertProductToProductDto(product));
+
+       // Page<ProductDto> pageOfProductDto = pageOfProducts.map(product -> convertProductToProductDto(product));
+        return ResponseEntity.ok(pageOfProductDto);
+
+
+
+
+
     }
 
     @GetMapping("/products/{productId}")
@@ -57,13 +74,15 @@ public class ProductController {
     }
 
     @PostMapping("/addProduct")
-    public ResponseEntity<Product> addProduct(@RequestBody ProductDto productDto) { //whatever is sent in the body of the request will be mapped to the productDto object
+    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) { //whatever is sent in the body of the request will be mapped to the productDto object
 
         Product product = productService.addProduct(convertProductDtoToProduct(productDto));
         ////////////checkk
-        AddNewProductDto responseDto = new AddNewProductDto();
-        responseDto.setProduct(product);
-        return ResponseEntity.ok(product);
+//        AddNewProductDto responseDto = new AddNewProductDto();
+//        responseDto.setProduct(product);
+
+        ProductDto responseDto = convertProductToProductDto(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
 
     }
 

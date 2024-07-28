@@ -5,6 +5,9 @@ import dev.jaffer.productService.exceptions.NotFoundExceptions;
 import dev.jaffer.productService.models.Product;
 import dev.jaffer.productService.repositories.ProductRepository;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,20 +15,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service("selfProductService")
-//@Primary
+@Primary
 public class SelfProductService implements ProductService{
 
     ProductRepository productRepository;
 
     public SelfProductService(ProductRepository productRepository) {
+
         this.productRepository = productRepository;
     }
 
 
     @Override
-    public List<Product> getAllProducts() {
-       return productRepository.findAll();
-        //return new ArrayList<>();
+    public Page<Product> getAllProducts(int pageNumber, int pageSize) {
+        //pageRequest is an implementation of Pageable interface and has various constructors .of
+       return productRepository.findAll(PageRequest.of(pageNumber,pageSize));
+
     }
 
     @Override
