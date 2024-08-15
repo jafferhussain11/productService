@@ -1,6 +1,8 @@
 package dev.jaffer.productService.services;
 
 import dev.jaffer.productService.clients.fakeStoreApi.FakeStoreProductDto;
+import dev.jaffer.productService.elasticsearch.ProductElastic;
+import dev.jaffer.productService.elasticsearch.ProductElasticRepo;
 import dev.jaffer.productService.exceptions.NotFoundExceptions;
 import dev.jaffer.productService.models.Product;
 import dev.jaffer.productService.repositories.ProductRepository;
@@ -19,10 +21,12 @@ import java.util.Optional;
 public class SelfProductService implements ProductService{
 
     ProductRepository productRepository;
+    ProductElasticRepo productElasticRepo;
 
-    public SelfProductService(ProductRepository productRepository) {
+    public SelfProductService(ProductRepository productRepository, ProductElasticRepo productElasticRepo) {
 
         this.productRepository = productRepository;
+        this.productElasticRepo = productElasticRepo;
     }
 
 
@@ -45,6 +49,9 @@ public class SelfProductService implements ProductService{
 
     @Override
     public Product addProduct(Product product) {
+
+        productElasticRepo.save(ProductElastic.toProduct(product));
+
         return productRepository.save(product);
     }
 
@@ -72,6 +79,8 @@ public class SelfProductService implements ProductService{
         ////gotta do this
         return false;
     }
+
+
 
 }
 

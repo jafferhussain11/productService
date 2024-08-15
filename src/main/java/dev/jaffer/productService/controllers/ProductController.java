@@ -28,36 +28,15 @@ public class ProductController {
     // Make only admins able to fetch all products
     @GetMapping("/products")
     public ResponseEntity<Page<ProductDto>> getAllProducts(@RequestParam("pageNumber") int pageNumber,
-                                                           @RequestParam("pageSize") int pageSize) throws NotFoundExceptions{
-
-
-//        List<Product> listOfProducts = productService.getAllProducts();
-
-//        List<ProductDto> listOfProductDto = new ArrayList<>();
-//
-//        if (listOfProducts.isEmpty()) {
-//            throw new NotFoundExceptions("No products found");
-//        }
-//
-//        for(Product product : listOfProducts) {
-//            ProductDto productDto = convertProductToProductDto(product);
-//            listOfProductDto.add(productDto);
-//        }
+                                                           @RequestParam("pageSize") int pageSize) throws NotFoundExceptions {
 
         Page<Product> pageOfProducts = productService.getAllProducts(pageNumber, pageSize);
-//        List<Product> listOfProducts = pageOfProducts.getContent();
-//        List<ProductDto> productDtoList = new ArrayList<>();
 
         //thisfuction is used to convert a page of products to a page of productDto
         Page<ProductDto> pageOfProductDto = pageOfProducts.map(product -> convertProductToProductDto(product));
 
-       // Page<ProductDto> pageOfProductDto = pageOfProducts.map(product -> convertProductToProductDto(product));
+        // Page<ProductDto> pageOfProductDto = pageOfProducts.map(product -> convertProductToProductDto(product));
         return ResponseEntity.ok(pageOfProductDto);
-
-
-
-
-
     }
 
     @GetMapping("/products/{productId}")
